@@ -3,37 +3,35 @@ from resources.lib import client
 from libra import cache
 
 
-class torec:
-
+class Torec:
     def __init__(self):
         self.torec_link = 'http://www.torec.net/tv_series_subs.asp?p=%s'
         self.torec_series_link = 'http://www.torec.net/sub.asp?sub_id=%s'
         self.torec_items_per_page = 12
         self.torec_total_pages = 500
 
-
     def get_tvshows(self, page=1):
         tvshows = []
 
-        reSubBox = "<a href=\"/sub.asp\?sub_id=(?P<id>\d+)\""
-        reSeries = "<div class=\"sub_tbox\".*?{0}.*?</div>".format(reSubBox)
+        re_sub_box = "<a href=\"/sub.asp\?sub_id=(?P<id>\d+)\""
+        re_series = "<div class=\"sub_tbox\".*?{0}.*?</div>".format(re_sub_box)
 
-        reIMDB = "<a href=\"http\://www\.imdb\.com/title/tt(?P<imdbid>\d+)/"
-        reSubRank = "<div class=\"sub_rank_div\".*?{0}.*?</div>".format(reIMDB)
+        re_imdb = "<a href=\"http\://www\.imdb\.com/title/tt(?P<imdbid>\d+)/"
+        re_sub_rank = "<div class=\"sub_rank_div\".*?{0}.*?</div>".format(re_imdb)
 
         try:
             page_content = str(client.request(self.torec_link % page))
-            for item in re.finditer(reSeries, page_content, re.DOTALL):
+            for item in re.finditer(re_series, page_content, re.DOTALL):
                 series_link = self.torec_series_link % str(item.group('id').strip())
                 series_content = str(client.request(series_link))
-                for series_item in re.finditer(reSubRank, series_content, re.DOTALL):
+                for series_item in re.finditer(re_sub_rank, series_content, re.DOTALL):
                     imdbid = "tt" + series_item.group('imdbid').strip()
                     tvshow = {}
                     try:
                         import hashlib
                         tvshowhash = "torec::" + hashlib.sha224("%s" % (imdbid)).hexdigest()
                         fromcache = cache.get(tvshowhash)
-                        if not fromcache == None:
+                        if fromcache is not None:
                             tvshow = eval(fromcache[1].encode('utf-8'))
                             tvshow['cached'] = "true"
                         else:
@@ -55,7 +53,7 @@ class torec:
 
                     except:
                         continue
-                        
+
                     tvshows.append(tvshow)
         except Exception, e:
             import xbmc
@@ -64,9 +62,3 @@ class torec:
             raise
 
         return tvshows
-
-
-
-   
-
-

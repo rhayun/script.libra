@@ -3,33 +3,29 @@ from resources.lib import client
 from libra import cache
 
 
-class ktuvit:
-
+class Ktuvit:
     def __init__(self):
         self.ktuvit_link = 'http://www.ktuvit.com/browsesubtitles.php?cs=movies&page=%s'
         self.ktuvit_items_per_page = 32
         self.ktuvit_total_pages = 32
         self.ktuvit_max_items = 1000
 
-
     def get_movies(self, page=1):
         movies = []
 
-        reMovieAnchor = "<a href=\"view.php\?id=(?P<id>\d+)#\d+\" title=\"(?P<nameHe>.*?)\|(?P<nameEn>.*?)\|(?P<year>.*?)\""
-        reMovie = "<table.*?{0}.*?Israel-Flag.png.*?</table>".format(reMovieAnchor)
+        re_movie_anchor = "<a href=\"view.php\?id=(?P<id>\d+)#\d+\" title=\"(?P<nameHe>.*?)\|(?P<nameEn>.*?)\|(?P<year>.*?)\""
+        re_movie = "<table.*?{0}.*?Israel-Flag.png.*?</table>".format(re_movie_anchor)
 
         try:
             page_content = str(client.request(self.ktuvit_link % page))
-            for item in re.finditer(reMovie, page_content, re.DOTALL):
-                movie = {}
-                movie['title'] = item.group('nameEn').strip()
-                movie['year'] = item.group('year').strip()
+            for item in re.finditer(re_movie, page_content, re.DOTALL):
+                movie = {'title': item.group('nameEn').strip(), 'year': item.group('year').strip()}
                 movie['name'] = "%s (%s)" % (movie['title'], movie['year'])
                 try:
                     import hashlib
                     moviehash = "ktuvit::" + hashlib.sha224("%s (%s)" % (movie['title'], movie['year'])).hexdigest()
                     fromcache = cache.get(moviehash)
-                    if not fromcache == None:
+                    if fromcache is not None:
                         movie = eval(fromcache[1].encode('utf-8'))
                         movie['cached'] = "true"
                     else:
@@ -44,7 +40,7 @@ class ktuvit:
 
                 except:
                     continue
-                    
+
                 movies.append(movie)
         except Exception, e:
             import xbmc
@@ -53,9 +49,3 @@ class ktuvit:
             raise
 
         return movies
-
-
-
-   
-
-
