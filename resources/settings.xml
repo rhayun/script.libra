@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <category label="Movies">
+        <setting id="movie_library" type="folder" label="Library Path" default="special://userdata/addon_data/script.libra/Movies" />
+        <setting id="movie_update_rate" type="enum" label="Update rate" default="0" values="every day|once a week|once a month"/>
+        <setting id="movie_max_fetch" type="enum" label="Max fetch each update" default="1" values="30|60|90|120"/>
+        <setting id="movie_force_update" type="enum" label="Max fetch each update" default="1" values="30|60|90|120"/>
+        <setting type="action" label="Update now" action="RunPlugin(plugin://script.gwall/service/force/movie)" option="close" />
+        
+        <setting type="lsep" label="Filters" />
+        <setting type="sep" />
+        <setting id="movie_year_from" type="slider" label="From year" default="1930" range="1930,1,2030" option="int" />
+        <setting id="movie_year_to" type="slider" label="To year" default="2030" range="1930,1,2030" option="int" />
+        <setting id="movie_rating_from" type="slider" label="Rating from" default="0" range="0, 0.1 ,10" option="float" />
+        <setting id="movie_rating_to" type="slider" label="Rating to" default="10" range="0, 0.1, 10" option="float" />
+        
+        <setting type="lsep" label="Genres" />
+        <setting id="mg_all" type="bool" label="All" default="true" />
+        <setting id="mg_action" type="bool" label="Action" default="false" />
+        <setting id="mg_adventure" type="bool" label="Adventure" default="false" />
+        <setting id="mg_animation" type="bool" label="Animation" default="false" />
+        <setting id="mg_biography" type="bool" label="Biography" default="false" />
+        <setting id="mg_comedy" type="bool" label="Comedy" default="false" />
+        <setting id="mg_crime" type="bool" label="Crime" default="false" />
+        <setting id="mg_documentry" type="bool" label="Documentary" default="false" />
+        <setting id="mg_drama" type="bool" label="Drama" default="false" />
+        <setting id="mg_family" type="bool" label="Family" default="false" />
+        <setting id="mg_fantasy" type="bool" label="Fantasy" default="false" />
+        <setting id="mg_film_noir" type="bool" label="Film-Noir" default="false" />
+        <setting id="mg_history" type="bool" label="History" default="false" />
+        <setting id="mg_horror" type="bool" label="Horror" default="false" />
+        <setting id="mg_music" type="bool" label="Music" default="false" />
+        <setting id="mg_musical" type="bool" label="Musical" default="false" />
+        <setting id="mg_mystery" type="bool" label="Mystery" default="false" />
+        <setting id="mg_romance" type="bool" label="Romance" default="false" />
+        <setting id="mg_sci_fi" type="bool" label="Sci-Fi" default="false" />
+        <setting id="mg_sport" type="bool" label="Sport" default="false" />
+        <setting id="mg_thriller" type="bool" label="Thriller" default="false" />
+        <setting id="mg_war" type="bool" label="War" default="false" />
+        <setting id="mg_western" type="bool" label="Western" default="false" />
+    </category>
+    <category label="TV Shows">
+        <setting id="tv_library" type="folder" label="Library Path" default="special://userdata/addon_data/script.libra/TV" />
+        <setting id="tv_update_rate" type="enum" label="Update rate" default="0"  values="every 3 hours|every 6 hours|every 12 hours|every day|once a week|once a month"/>
+        <setting id="tv_max_fetch" type="enum" label="Max fetch each update" default="0" values="10|20|30|40|50"/>
+        <setting type="action" label="Update now" action="RunPlugin(plugin://script.gwall/service/force/tv)" option="close" />
+        
+        <setting type="lsep" label="Filters" />
+        <setting type="sep" />
+        <setting id="tv_year_from" type="slider" label="From year" default="1930" range="1930,1,2030" option="int" />
+        <setting id="tv_year_to" type="slider" label="To year" default="2030" range="1930,1,2030" option="int" />
+        <setting id="tv_rating_from" type="slider" label="Rating from" default="0" range="0, 0.1 ,10" option="float" />
+        <setting id="tv_rating_to" type="slider" label="Rating to" default="10" range="0, 0.1, 10" option="float" />
+
+        <setting type="lsep" label="Genres" />
+        <setting id="tg_all" type="bool" label="All" default="true" />
+        <setting id="tg_action" type="bool" label="Action" default="false" />
+        <setting id="tg_adventure" type="bool" label="Adventure" default="false" />
+        <setting id="tg_animation" type="bool" label="Animation" default="false" />
+        <setting id="tg_biography" type="bool" label="Biography" default="false" />
+        <setting id="tg_comedy" type="bool" label="Comedy" default="false" />
+        <setting id="tg_crime" type="bool" label="Crime" default="false" />
+        <setting id="tg_documentry" type="bool" label="Documentary" default="false" />
+        <setting id="tg_drama" type="bool" label="Drama" default="false" />
+        <setting id="tg_family" type="bool" label="Family" default="false" />
+        <setting id="tg_fantasy" type="bool" label="Fantasy" default="false" />
+        <setting id="tg_game_show" type="bool" label="Game-Show" default="false" />
+        <setting id="tg_history" type="bool" label="History" default="false" />
+        <setting id="tg_horror" type="bool" label="Horror" default="false" />
+        <setting id="tg_music" type="bool" label="Music" default="false" />
+        <setting id="tg_musical" type="bool" label="Musical" default="false" />
+        <setting id="tg_mystery" type="bool" label="Mystery" default="false" />
+        <setting id="tg_news" type="bool" label="News" default="false" />
+        <setting id="tg_reality_tv" type="bool" label="Reality-TV" default="false" />
+        <setting id="tg_romance" type="bool" label="Romance" default="false" />
+        <setting id="tg_sci_fi" type="bool" label="Sci-Fi" default="false" />
+        <setting id="tg_sitcom" type="bool" label="Sitcom" default="false" />
+        <setting id="tg_sport" type="bool" label="Sport" default="false" />
+        <setting id="tg_talk_show" type="bool" label="Talk-Show" default="false" />
+        <setting id="tg_thriller" type="bool" label="Thriller" default="false" />
+        <setting id="tg_war" type="bool" label="War" default="false" />
+        <setting id="tg_western" type="bool" label="Western" default="false" />
+    </category>
+
+    <category label="Sources">
+        <setting id="s_genesis" type="bool" label="Genesis" default="true" />
+        <setting id="s_pulsar" type="bool" label="Pulsar" default="true" />
+        <setting id="s_salts" type="bool" label="Salts" default="true" />
+    </category>
+
+    <category label="General">
+        <setting id="notifications" type="bool" label="Show Notifications" default="true" />
+        <setting id="debug_mode" type="bool" label="Enable debug log" default="false" />
+    </category>
+</settings>
