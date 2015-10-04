@@ -22,9 +22,17 @@ class Torec:
         try:
             page_content = str(client.request(self.torec_link % page))
             for item in re.finditer(re_series, page_content, re.DOTALL):
+                import xbmc
+                import sys
+                if xbmc.abortRequested:
+                    return sys.exit()
                 series_link = self.torec_series_link % str(item.group('id').strip())
                 series_content = str(client.request(series_link))
                 for series_item in re.finditer(re_sub_rank, series_content, re.DOTALL):
+                    import xbmc
+                    import sys
+                    if xbmc.abortRequested:
+                        return sys.exit()
                     imdbid = "tt" + series_item.group('imdbid').strip()
                     tvshow = {}
                     try:

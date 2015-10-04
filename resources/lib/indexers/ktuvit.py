@@ -19,6 +19,10 @@ class Ktuvit:
         try:
             page_content = str(client.request(self.ktuvit_link % page))
             for item in re.finditer(re_movie, page_content, re.DOTALL):
+                import xbmc
+                import sys
+                if xbmc.abortRequested:
+                    return sys.exit()
                 movie = {'title': item.group('nameEn').strip(), 'year': item.group('year').strip()}
                 movie['name'] = "%s (%s)" % (movie['title'], movie['year'])
                 try:
@@ -31,6 +35,8 @@ class Ktuvit:
                     else:
                         from libra.imdb import imdb
                         imdb_data = imdb(title=movie['title'], year=movie['year'])
+                        if imdb_data.imdb_data.get('Error'):
+                            continue
                         movie['imdbid'] = imdb_data.get_imdbid()
                         movie['runtime'] = imdb_data.get_runtime()
                         movie['rating'] = imdb_data.get_rating()

@@ -27,6 +27,8 @@ execute = xbmc.executebuiltin
 
 dialog = xbmcgui.Dialog()
 
+window = xbmcgui.Window(10000)
+
 
 # Borrowed from xbmcswift2
 def get_setting(key, converter=str, choices=None):

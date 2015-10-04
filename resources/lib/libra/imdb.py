@@ -23,7 +23,6 @@ class imdb:
         try:
             omdb_info = client.request(self.omdb_link)
             self.imdb_data = json.loads(omdb_info)
-            print self.imdb_data
         except:
             pass
 

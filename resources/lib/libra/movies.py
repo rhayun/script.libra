@@ -1,15 +1,24 @@
-import xbmc, xbmcaddon, xbmcgui, xbmcplugin, json, urllib, os, sys
+import os
+import sys
+import re
+import xbmc
+import json
+import urllib
+
+try:
+    from sqlite3 import dbapi2 as database
+except:
+    from pysqlite2 import dbapi2 as database
 
 from libra import common
-from libra.addon import ADDON
+from libra.addon import ADDON_NAME
 from libra.logger import log
 
 
-class movies:
+class Movies:
 
     def __init__(self):
         self.library_folder = os.path.join(common.transPath(common.get_setting('movie_library')),'')
-
 
     def add(self, name, title, year, imdb):
         try:
@@ -22,26 +31,26 @@ class movies:
             lib = []
 
         try:
-            if not lib == []: raise Exception()
-            self.strmFile({'name': name, 'title': title, 'year': year, 'imdb': imdb})
+            if not lib == []:
+                raise Exception()
+            return self.strm_file({'name': name, 'title': title, 'year': year, 'imdb': imdb})
         except:
-            pass
+            return False
 
-        common.execute('UpdateLibrary(video)')
-
-
-    def strmFile(self, i):
+    def strm_file(self, i):
         try:
             name, title, year, imdb = i['name'], i['title'], i['year'], i['imdb']
 
             sysname, systitle = urllib.quote_plus(name), urllib.quote_plus(title)
 
-            transname = name.translate(None, '\/:*?&"<>|').strip('.')
+            transname = name.translate(None, "\/:*?&'`<>|").strip('.')
 
-            content = '%s?action=play&name=%s&title=%s&year=%s&imdb=%s' % (sys.argv[0], sysname, systitle, year, imdb)
+            content = 'plugin://script.libra/?action=play&name=%s&title=%s&year=%s&imdb=%s' % (sysname, systitle, year, imdb)
 
             common.makeFile(self.library_folder)
             folder = os.path.join(self.library_folder, transname)
+            if common.fileExists(folder + "/"):
+                return False
             common.makeFile(folder)
 
             try:
@@ -56,22 +65,113 @@ class movies:
                 pass
 
             stream = os.path.join(folder, transname + '.strm')
-            file = common.openFile(stream, 'w')
-            file.write(str(content))
-            file.close()
+            strmfile = common.openFile(stream, 'w')
+            strmfile.write(str(content))
+            strmfile.close()
+
+            nfo_stream = os.path.join(folder, transname + '.nfo')
+            nfofile = common.openFile(nfo_stream, 'w')
+            nfocontent = "http://www.imdb.com/title/%s" % imdb
+            nfofile.write(str(nfocontent))
+            nfofile.close()
+        except:
+            return False
+
+        print "Create %s" % stream
+        return True
+
+
+class MoviesThread:
+    def __init__(self):
+        self.property = '%s_service_property' % ADDON_NAME.lower()
+
+    def thread(self):
+        try:
+            import xbmc
+            from resources.lib.indexers import ktuvit
+            log.info("libra: starting movies service")
+
+            update_rate = common.get_setting("movie_update_rate")
+            update_rate_hours = 24 # every day
+            if update_rate == 1:
+                update_rate_hours *= 7  # once a week
+            elif update_rate == 2:
+                update_rate_hours *= 30  # once a month
+
+            # Check last run for each service
+            last_run = self.last_run()
+
+            try:
+                common.window.setProperty(self.property, last_run)
+            except:
+                return
+
+            service_property = common.window.getProperty(self.property)
+            import datetime
+            t1 = datetime.timedelta(hours=update_rate_hours)
+            t2 = datetime.datetime.strptime(service_property, '%Y-%m-%d %H:%M:%S.%f')
+            t3 = datetime.datetime.now()
+
+            check = abs(t3 - t2) > t1
+            if check is not False:
+                service_property = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+                common.window.setProperty(self.property, service_property)
+
+                try:
+                    dbcon = database.connect(common.libraDbFile)
+                    dbcur = dbcon.cursor()
+                    dbcur.execute("CREATE TABLE IF NOT EXISTS service (""setting TEXT, ""value TEXT, ""UNIQUE(setting)"");")
+                    dbcur.execute("DELETE FROM service WHERE setting = 'last_run__movies'")
+                    dbcur.execute("INSERT INTO service Values (?, ?)", ('last_run__movies', service_property))
+                    dbcon.commit()
+                    dbcon.close()
+                except:
+                    try:
+                        dbcon.close()
+                    except:
+                        pass
+
+                ktuvit = ktuvit.Ktuvit()
+                page = 1
+                added = 0
+                while page <= ktuvit.ktuvit_total_pages or added < 32: # need to be replace with setting
+                    if xbmc.abortRequested:
+                        return sys.exit()
+
+                    movies = ktuvit.get_movies(page=page)
+                    if movies:
+                        for movie in movies:
+                            success = Movies().add(re.sub("#039;", "", movie['name']), movie['title'], movie['year'], movie['imdbid'])
+                            if success is True:
+                                added += 1
+
+                    if added > 32 or page > 32:
+                        break;
+                    page += 1
+            common.execute('UpdateLibrary(video)')
+        except:
+            return
+
+    def last_run(self):
+        last_run_date = "1970-01-01 23:59:00.000000"
+        try:
+            dbcon = database.connect(common.libraDbFile)
+            dbcur = dbcon.cursor()
+            dbcur.execute("CREATE TABLE IF NOT EXISTS service (""setting TEXT, ""value TEXT, ""UNIQUE(setting)"");")
+            dbcur.execute("SELECT * FROM service WHERE setting = 'last_run__movies'")
+            fetch = dbcur.fetchone()
+            if fetch is None:
+                dbcur.execute("INSERT INTO service Values (?, ?)", ('last_run__movies', last_run_date))
+                dbcon.commit()
+            else:
+                last_run_date = str(fetch[1])
+            dbcon.close()
         except:
             pass
+        return last_run_date
 
 
 def movies_thread():
-    try:
-        import xbmc
-        log.info("libra: starting movies service")
-        while not xbmc.abortRequested:
-            a = 1
-
-    except Exception, e:
-        import xbmc
-        import traceback
-        map(xbmc.log, traceback.format_exc().split("\n"))
-        raise
+    while not xbmc.abortRequested:
+        MoviesThread().thread()
+        xbmc.sleep(60000)

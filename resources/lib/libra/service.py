@@ -6,7 +6,6 @@ from libra.series import series_thread
 
 
 def run():
-
     threads = [
         threading.Thread(target=movies_thread),
         threading.Thread(target=series_thread),
@@ -14,7 +13,6 @@ def run():
     for t in threads:
         t.daemon = True
         t.start()
-
 
     # XBMC loop
     while not xbmc.abortRequested:

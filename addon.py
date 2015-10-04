@@ -34,15 +34,22 @@ except:
     tvshowtitle = None
 
 
-
-if action == None:
+if action is None:
     print "======= Libra ========"
     # from resources.lib.indexers import navigator
     # navigator.navigator().root()
 
+elif action == 'movieToLibrary':
+    from libra import movies
+    movies.Movies().add(name, title, year, imdb)
+
+# elif action == 'seriesToLibrary':
+#     from libra import series
+#     series.Series().add(name, title, year, imdb)
+
 elif action == 'play':
-    from libra.sources import sources
-    s = sources()
+    from libra.sources import Sources
+    s = Sources()
     s.play(name, title, year, imdb, tvdb, tvshowtitle)
 
 # from libra.imdb import imdb
