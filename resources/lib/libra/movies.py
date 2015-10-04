@@ -89,7 +89,6 @@ class MoviesThread:
         try:
             import xbmc
             from resources.lib.indexers import ktuvit
-            log.info("libra: starting movies service")
 
             update_rate = common.get_setting("movie_update_rate")
             update_rate_hours = 24 # every day
@@ -114,6 +113,7 @@ class MoviesThread:
 
             check = abs(t3 - t2) > t1
             if check is not False:
+                log.info("libra: starting movies service")
                 service_property = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
                 common.window.setProperty(self.property, service_property)
 
@@ -141,6 +141,12 @@ class MoviesThread:
                     movies = ktuvit.get_movies(page=page)
                     if movies:
                         for movie in movies:
+                            if not self.is_valid_year(movie['year']):
+                                continue
+                            if not self.is_valid_genre(movie['genres']):
+                                continue
+                            if not self.is_valid_rating(movie['rating']):
+                                continue
                             success = Movies().add(re.sub("#039;", "", movie['name']), movie['title'], movie['year'], movie['imdbid'])
                             if success is True:
                                 added += 1
@@ -170,8 +176,28 @@ class MoviesThread:
             pass
         return last_run_date
 
+    def is_valid_year(self, year):
+        return int(common.get_setting('movie_year_from')) <= int(year) <= int(common.get_setting('movie_year_to'))
+
+    def is_valid_rating(self, rating):
+        return float(common.get_setting('movie_rating_from')) <= float(rating) <= float(common.get_setting('movie_rating_to'))
+
+    def is_valid_genre(self, genres):
+        valid = False
+        if common.get_setting('mg_all') == 'true':
+            valid = True
+        else:
+            for genre in genres:
+                genre = re.sub('\s-\.', '_', genre.strip())
+                if common.get_setting('mg_' + genre.lower()) == 'true':
+                    valid = True
+                    break
+        return valid
+
 
 def movies_thread():
     while not xbmc.abortRequested:
-        MoviesThread().thread()
+        indicator = os.path.join(common.dataPath, 'settings.xml')
+        if common.fileExists(indicator):
+            MoviesThread().thread()
         xbmc.sleep(60000)

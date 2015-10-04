@@ -48,6 +48,7 @@ class Ktuvit:
                     continue
 
                 movies.append(movie)
+
         except Exception, e:
             import xbmc
             import traceback
